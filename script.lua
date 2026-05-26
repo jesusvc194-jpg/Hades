@@ -1,6 +1,6 @@
 --// DENYS ULTIMATE SECRET FINDER
---// AUTO HOP + BETTER DETECTION + ANTI REPEAT
---// DRAG GUI + STOP + MINIMIZE + EXIT
+--// FULL FIXED VERSION
+--// AUTO HOP + ANTI FREEZE + ANTI REPEAT
 
 if getgenv().BrainrotLoaded then
 	return
@@ -196,7 +196,6 @@ scrolling.Parent = main
 scrolling.Position = UDim2.new(0,8,0,65)
 scrolling.Size = UDim2.new(1,-16,1,-73)
 scrolling.BackgroundTransparency = 1
-scrolling.CanvasSize = UDim2.new(0,0,0,0)
 
 local layout = Instance.new("UIListLayout")
 layout.Parent = scrolling
@@ -362,10 +361,6 @@ local function ScanServer()
 
 	foundRare = false
 
-	scrolling:ClearAllChildren()
-
-	layout.Parent = scrolling
-
 	for _,plr in pairs(Players:GetPlayers()) do
 
 		if plr ~= LocalPlayer then
@@ -414,26 +409,29 @@ function HopServer()
 		return
 	end
 
-	status.Text = "🔁 Searching new server..."
+	status.Text = "🔄 Searching new server..."
 
 	local success,servers = pcall(function()
 
 		local url =
 			"https://games.roblox.com/v1/games/"..
 			PlaceId..
-			"/servers/Public?sortOrder=Desc&limit=100"
+			"/servers/Public?sortOrder=Asc&limit=100"
 
 		if ServerCursor then
-			url = url .. "&cursor=" .. ServerCursor
+			url = url.."&cursor="..ServerCursor
 		end
 
 		return HttpService:JSONDecode(
 			game:HttpGet(url)
 		)
-
 	end)
 
-	if not success or not servers then
+	if not success or not servers or not servers.data then
+
+		status.Text = "❌ Retry request..."
+
+		ServerCursor = nil
 
 		task.wait(2)
 
@@ -442,27 +440,76 @@ function HopServer()
 
 	ServerCursor = servers.nextPageCursor
 
-	local bestServer = nil
+	local foundServer = false
 
-	for _,server in pairs(servers.data) do
+	for _,server in ipairs(servers.data) do
 
 		local freeSlots =
 			server.maxPlayers - server.playing
 
 		if server.id ~= game.JobId
-		and freeSlots >= 2
-		and server.playing >= 3
-		and not table.find(VisitedServers,server.id) then
+		and freeSlots > 0
+		and server.playing >= 2
+		and not table.find(
+			VisitedServers,
+			server.id
+		) then
 
-			table.insert(VisitedServers,server.id)
+			foundServer = true
 
-			bestServer = server
+			table.insert(
+				VisitedServers,
+				server.id
+			)
+
+			status.Text =
+				"🚀 Joining "..server.playing..
+				"/"..server.maxPlayers
+
+			local CurrentJobId = game.JobId
+
+			task.spawn(function()
+
+				task.wait(15)
+
+				if game.JobId == CurrentJobId then
+
+					status.Text =
+						"❌ Server froze retrying..."
+
+					HopServer()
+				end
+			end)
+
+			local tp = pcall(function()
+
+				TeleportService:
+				TeleportToPlaceInstance(
+					PlaceId,
+					server.id,
+					LocalPlayer
+				)
+
+			end)
+
+			if not tp then
+
+				status.Text =
+					"❌ TP failed retry..."
+
+				task.wait(1)
+
+				return HopServer()
+			end
 
 			break
 		end
 	end
 
-	if not bestServer then
+	if not foundServer then
+
+		status.Text =
+			"♻ Refreshing servers..."
 
 		ServerCursor = nil
 
@@ -470,12 +517,6 @@ function HopServer()
 
 		return HopServer()
 	end
-
-	TeleportService:TeleportToPlaceInstance(
-		PlaceId,
-		bestServer.id,
-		LocalPlayer
-	)
 end
 
 --========================
