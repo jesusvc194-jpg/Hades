@@ -1,741 +1,315 @@
---// DENYS ULTIMATE SECRET FINDER
---// PREMIUM FINAL VERSION
---// AUTO HOP + ANTI FREEZE + ANTI REPEAT
---// BETTER DETECTOR + SMART FILTER + PREMIUM UI
+--// SECRET FINDER FINAL
+--// SECRET ONLY
+--// AUTO SERVER HOP
+--// NO REPEATED SERVERS
+--// DRAG + STOP + MINIMIZE + EXIT
 
-if getgenv().BrainrotLoaded then
+if getgenv().SecretFinderLoaded then
 	return
 end
+getgenv().SecretFinderLoaded = true
 
-getgenv().BrainrotLoaded = true
-
-repeat task.wait()
-until game:IsLoaded()
-
--- SERVICES
+repeat task.wait() until game:IsLoaded()
 
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
-local GuiService = game:GetService("GuiService")
-local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
-local CoreGui = game:GetService("CoreGui")
 
 local LocalPlayer = Players.LocalPlayer
-local PlaceId = game.PlaceId
+local PlaceID = game.PlaceId
+local JobID = game.JobId
 
-repeat task.wait()
-until LocalPlayer.Character
-and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+--// VISITED SERVERS
 
-task.wait(8)
+local visitedServers = {}
 
--- AUTO EXECUTE
-
-if queue_on_teleport then
-	queue_on_teleport([[
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/jesusvc194-jpg/Hades/main/script.lua"))()
-	]])
-end
-
--- SETTINGS
-
-local AutoHop = true
-local ServerCursor = nil
-
-getgenv().VisitedServers =
-	getgenv().VisitedServers or {}
-
-local VisitedServers =
-	getgenv().VisitedServers
-
--- SECRET LIST
-
-local SecretKeywords = {
-
-"La Supreme Combinasion",
-"La Grande Combinasion",
-"Dragon Cannelloni",
-"Garama and Madundung",
-"Ketchuru and Musturu",
-"Developini Braziliaspidini",
-"Money Money Puggy",
-"Kings Coleslaw",
-"Tralaledon",
-"Nuclearo Dinossauro",
-"Ketupat Kepat",
-"Tictac Sahur",
-"Spaghetti Tualetti",
-"Strawberry Elephant",
-"Burguro and Fryuro",
-"Chillin Chili",
-"Spyderinis",
-"Extinct Tralalero",
-"Los Spyderrinis",
-"Fragola La La La",
-"La Cucaracha",
-"Los Tralaleritos",
-"Los Tortus",
-"Guerriro Digitale",
-"Yess my examine",
-"Extinct Matteo",
-"Las Tralaleritas",
-"La Karkerkar Combinasion",
-"Job Job Job Sahur",
-"Karker Sahur",
-"Las Vaquitas Saturnitas",
-"Graipuss Medussi",
-"Perrito Burrito",
-"Nooo My Hotspot",
-"Los Jobcitos",
-"Noo my examine",
-"La Sahur Combinasion",
-"To to to Sahur",
-"Karkerkar Kurkur",
-"Pot Hotspot",
-"Quesadilla Crocodila",
-"Chicleteira Bicicleteira",
-"Los Noo My Hotspotsitos",
-"Los Nooo My Hotspotsitos",
-"Los Chicleteiras",
-"Mariachi Corazoni",
-"Tacorita Bicicleta",
-"Las Sis",
-"Los Hotspotsitos",
-"Celularcini Viciosini",
-"La Extinct Grande",
-"Los Bros",
-"Esok Sekolah",
-"Los Primos",
-"Los Tacoritas",
-"Tang Tang Kelentang",
-"Los Combinasionas",
-"La Combinasion"
-
-}
-
--- GUI
+--// GUI
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "DenysFinder"
-gui.Parent = CoreGui
+gui.Name = "SecretFinder"
 gui.ResetOnSpawn = false
+gui.Parent = game.CoreGui
 
 local main = Instance.new("Frame")
 main.Parent = gui
-main.Size = UDim2.new(0,340,0,300)
-main.Position = UDim2.new(0.02,0,0.2,0)
-main.BackgroundColor3 = Color3.fromRGB(12,12,12)
+main.Size = UDim2.new(0,320,0,260)
+main.Position = UDim2.new(0.67,0,0.02,0)
+main.BackgroundColor3 = Color3.fromRGB(0,0,0)
 main.BorderSizePixel = 0
 main.Active = true
 main.Draggable = true
 
-Instance.new("UICorner",main).CornerRadius =
-	UDim.new(0,16)
+Instance.new("UICorner",main).CornerRadius = UDim.new(0,18)
 
-local stroke = Instance.new("UIStroke")
-stroke.Parent = main
-stroke.Color = Color3.fromRGB(255,140,0)
-stroke.Thickness = 2
+--// TOP BAR
 
-local gradient = Instance.new("UIGradient")
-gradient.Parent = main
-gradient.Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(
-		0,
-		Color3.fromRGB(20,20,20)
-	),
-
-	ColorSequenceKeypoint.new(
-		1,
-		Color3.fromRGB(40,15,0)
-	)
-}
-
--- TITLE
+local top = Instance.new("Frame")
+top.Parent = main
+top.Size = UDim2.new(1,0,0,40)
+top.BackgroundTransparency = 1
 
 local title = Instance.new("TextLabel")
-title.Parent = main
-title.Size = UDim2.new(1,0,0,35)
+title.Parent = top
+title.Size = UDim2.new(0.45,0,1,0)
 title.BackgroundTransparency = 1
-title.Text = "🔥 DENYS PREMIUM"
-title.TextScaled = true
-title.Font = Enum.Font.GothamBold
+title.Text = "🔥 SECRET FINDER"
 title.TextColor3 = Color3.fromRGB(255,170,0)
+title.Font = Enum.Font.GothamBold
+title.TextScaled = true
 
--- STATUS
-
-local status = Instance.new("TextLabel")
-status.Parent = main
-status.Size = UDim2.new(1,0,0,25)
-status.Position = UDim2.new(0,0,0,35)
-status.BackgroundTransparency = 1
-status.Text = "🔍 Searching..."
-status.TextScaled = true
-status.Font = Enum.Font.Gotham
-status.TextColor3 = Color3.new(1,1,1)
-
--- BUTTONS
+--// STOP BUTTON
 
 local stopBtn = Instance.new("TextButton")
-stopBtn.Parent = main
-stopBtn.Size = UDim2.new(0,55,0,25)
-stopBtn.Position = UDim2.new(0.34,0,0.03,0)
+stopBtn.Parent = top
+stopBtn.Size = UDim2.new(0,60,0,30)
+stopBtn.Position = UDim2.new(0.52,0,0.1,0)
 stopBtn.Text = "STOP"
+stopBtn.BackgroundColor3 = Color3.fromRGB(255,170,0)
+stopBtn.TextColor3 = Color3.new(0,0,0)
+stopBtn.Font = Enum.Font.GothamBold
 stopBtn.TextScaled = true
-stopBtn.BackgroundColor3 =
-	Color3.fromRGB(255,170,0)
 
-Instance.new("UICorner",stopBtn)
+Instance.new("UICorner",stopBtn).CornerRadius = UDim.new(0,8)
 
-local hopBtn = Instance.new("TextButton")
-hopBtn.Parent = main
-hopBtn.Size = UDim2.new(0,55,0,25)
-hopBtn.Position = UDim2.new(0.53,0,0.03,0)
-hopBtn.Text = "HOP"
-hopBtn.TextScaled = true
-hopBtn.BackgroundColor3 =
-	Color3.fromRGB(0,170,255)
+--// MINIMIZE BUTTON
 
-Instance.new("UICorner",hopBtn)
+local minBtn = Instance.new("TextButton")
+minBtn.Parent = top
+minBtn.Size = UDim2.new(0,30,0,30)
+minBtn.Position = UDim2.new(0.83,0,0.1,0)
+minBtn.Text = "-"
+minBtn.BackgroundColor3 = Color3.fromRGB(180,180,180)
+minBtn.TextColor3 = Color3.new(0,0,0)
+minBtn.Font = Enum.Font.GothamBold
+minBtn.TextScaled = true
 
-local minimizeBtn =
-	Instance.new("TextButton")
+Instance.new("UICorner",minBtn).CornerRadius = UDim.new(0,8)
 
-minimizeBtn.Parent = main
-minimizeBtn.Size = UDim2.new(0,30,0,25)
-minimizeBtn.Position =
-	UDim2.new(0.72,0,0.03,0)
-
-minimizeBtn.Text = "-"
-minimizeBtn.TextScaled = true
-
-Instance.new("UICorner",minimizeBtn)
+--// EXIT BUTTON
 
 local exitBtn = Instance.new("TextButton")
-exitBtn.Parent = main
-exitBtn.Size = UDim2.new(0,55,0,25)
-exitBtn.Position = UDim2.new(0.82,0,0.03,0)
-exitBtn.Text = "EXIT"
+exitBtn.Parent = top
+exitBtn.Size = UDim2.new(0,45,0,30)
+exitBtn.Position = UDim2.new(1,-50,0.1,0)
+exitBtn.Text = "X"
+exitBtn.BackgroundColor3 = Color3.fromRGB(255,80,80)
+exitBtn.TextColor3 = Color3.new(1,1,1)
+exitBtn.Font = Enum.Font.GothamBold
 exitBtn.TextScaled = true
-exitBtn.BackgroundColor3 =
-	Color3.fromRGB(255,70,70)
 
-Instance.new("UICorner",exitBtn)
+Instance.new("UICorner",exitBtn).CornerRadius = UDim.new(0,8)
 
--- SCROLLING
+--// CONTENT
 
-local scrolling = Instance.new("ScrollingFrame")
-scrolling.Parent = main
-scrolling.Position = UDim2.new(0,8,0,65)
-scrolling.Size = UDim2.new(1,-16,1,-73)
-scrolling.BackgroundTransparency = 1
-scrolling.BorderSizePixel = 0
-scrolling.ScrollBarThickness = 3
+local content = Instance.new("Frame")
+content.Parent = main
+content.Size = UDim2.new(1,-10,1,-50)
+content.Position = UDim2.new(0,5,0,45)
+content.BackgroundTransparency = 1
 
-local layout = Instance.new("UIListLayout")
-layout.Parent = scrolling
-layout.Padding = UDim.new(0,5)
+local status = Instance.new("TextLabel")
+status.Parent = content
+status.Size = UDim2.new(1,0,0,35)
+status.BackgroundTransparency = 1
+status.Text = "🔍 Searching Secret..."
+status.TextColor3 = Color3.fromRGB(255,255,255)
+status.Font = Enum.Font.GothamBold
+status.TextScaled = true
 
-layout:GetPropertyChangedSignal(
-	"AbsoluteContentSize"
-):Connect(function()
+local log = Instance.new("TextLabel")
+log.Parent = content
+log.Size = UDim2.new(1,-10,1,-45)
+log.Position = UDim2.new(0,5,0,40)
+log.BackgroundTransparency = 1
+log.Text = "Waiting..."
+log.TextColor3 = Color3.fromRGB(255,170,0)
+log.Font = Enum.Font.Code
+log.TextSize = 18
+log.TextWrapped = true
+log.TextXAlignment = Enum.TextXAlignment.Left
+log.TextYAlignment = Enum.TextYAlignment.Top
 
-	scrolling.CanvasSize =
-		UDim2.new(
-			0,
-			0,
-			0,
-			layout.AbsoluteContentSize.Y + 10
-		)
-end)
-
--- MINIMIZE SYSTEM
+--// MINIMIZE SYSTEM
 
 local minimized = false
 local originalSize = main.Size
 
-minimizeBtn.MouseButton1Click:Connect(function()
+minBtn.MouseButton1Click:Connect(function()
 
 	minimized = not minimized
 
 	if minimized then
 
-		scrolling.Visible = false
-		status.Visible = false
-
-		main:TweenSize(
-			UDim2.new(0,340,0,40),
-			Enum.EasingDirection.Out,
-			Enum.EasingStyle.Quad,
-			0.25,
-			true
-		)
-
-		minimizeBtn.Text = "+"
+		content.Visible = false
+		main.Size = UDim2.new(0,320,0,40)
+		minBtn.Text = "+"
 
 	else
 
-		main:TweenSize(
-			originalSize,
-			Enum.EasingDirection.Out,
-			Enum.EasingStyle.Quad,
-			0.25,
-			true
-		)
+		content.Visible = true
+		main.Size = originalSize
+		minBtn.Text = "-"
 
-		task.wait(0.1)
-
-		scrolling.Visible = true
-		status.Visible = true
-
-		minimizeBtn.Text = "-"
 	end
 end)
 
--- BUTTONS
+--// EXIT
+
+exitBtn.MouseButton1Click:Connect(function()
+
+	gui:Destroy()
+	getgenv().SecretFinderLoaded = false
+
+end)
+
+--// STOP SYSTEM
+
+local stopped = false
 
 stopBtn.MouseButton1Click:Connect(function()
 
-	AutoHop = not AutoHop
+	stopped = not stopped
 
-	if AutoHop then
-		stopBtn.Text = "STOP"
+	if stopped then
+
+		stopBtn.Text = "START"
+		status.Text = "⏹️ Stopped"
+
 	else
-		stopBtn.Text = "PLAY"
+
+		stopBtn.Text = "STOP"
+		status.Text = "🔍 Searching Secret..."
+
 	end
 end)
 
-hopBtn.MouseButton1Click:Connect(function()
-	HopServer()
-end)
+--// SERVER HOP
 
-exitBtn.MouseButton1Click:Connect(function()
-	gui:Destroy()
-end)
+local hopping = false
 
--- SOUND
+local function ServerHop()
 
-local function PlaySound()
-
-	local sound = Instance.new("Sound")
-
-	sound.SoundId =
-		"rbxassetid://9118828562"
-
-	sound.Volume = 3
-	sound.Parent = workspace
-
-	sound:Play()
-
-	game.Debris:AddItem(sound,5)
-end
-
--- CARD SYSTEM
-
-local DetectedCards = {}
-
-local function AddCard(player,item)
-
-	local id = player.."_"..item
-
-	if DetectedCards[id] then
+	if hopping then
 		return
 	end
 
-	DetectedCards[id] = true
+	hopping = true
 
-	local holder = Instance.new("Frame")
-	holder.Parent = scrolling
-	holder.Size = UDim2.new(1,-5,0,55)
-	holder.BackgroundColor3 =
-		Color3.fromRGB(30,30,30)
+	local success,err = pcall(function()
 
-	Instance.new("UICorner",holder)
-
-	local stroke =
-		Instance.new("UIStroke")
-
-	stroke.Parent = holder
-	stroke.Color =
-		Color3.fromRGB(255,140,0)
-
-	local txt = Instance.new("TextLabel")
-	txt.Parent = holder
-	txt.Size = UDim2.new(1,-10,1,0)
-	txt.Position = UDim2.new(0,10,0,0)
-	txt.BackgroundTransparency = 1
-	txt.TextColor3 = Color3.new(1,1,1)
-	txt.TextScaled = true
-	txt.Font = Enum.Font.GothamBold
-	txt.TextXAlignment =
-		Enum.TextXAlignment.Left
-
-	txt.Text =
-	"👤 "..player..
-	"\n💎 "..item
-end
-
--- DETECTOR
-
-local foundRare = false
-local Detected = {}
-
-local function Normalize(text)
-
-	return string.lower(
-		string.gsub(text,"[^%w]","")
-	)
-end
-
-local function IsRare(name)
-
-	local normalizedName =
-		Normalize(name)
-
-	for _,keyword in pairs(
-		SecretKeywords
-	) do
-
-		local normalizedKeyword =
-			Normalize(keyword)
-
-		if string.find(
-			normalizedName,
-			normalizedKeyword,
-			1,
-			true
-		) then
-			return true
-		end
-	end
-
-	return false
-end
-
-local function Detect(obj, owner)
-
-	if not obj or not obj.Name then
-		return
-	end
-
-	-- IGNORE JUNK
-
-	if obj:IsA("Motor6D")
-	or obj:IsA("Weld")
-	or obj:IsA("Script")
-	or obj:IsA("LocalScript")
-	or obj:IsA("ModuleScript")
-	or obj:IsA("Decal")
-	or obj:IsA("Texture")
-	or obj:IsA("Sound")
-	then
-		return
-	end
-
-	-- IGNORE RANDOM IDS
-
-	if string.len(obj.Name) > 40 then
-		return
-	end
-
-	if string.match(obj.Name,"%x%x%x%x%x%x%x%x") then
-		return
-	end
-
-	if IsRare(obj.Name) then
-
-		local id =
-			owner.."_"..obj.Name
-
-		if Detected[id] then
-			return
-		end
-
-		Detected[id] = true
-
-		foundRare = true
-
-		AddCard(owner,obj.Name)
-
-		PlaySound()
-
-		status.Text =
-			"🔥 FOUND: "..obj.Name
-	end
-end
-
-local function ScanContainer(container, owner)
-
-	pcall(function()
-
-		for _,obj in pairs(
-			container:GetDescendants()
-		) do
-
-			Detect(obj, owner)
-		end
-	end)
-end
-
-local function ScanServer()
-
-	foundRare = false
-
-	-- PLAYERS
-
-	for _,plr in pairs(
-		Players:GetPlayers()
-	) do
-
-		if plr ~= LocalPlayer then
-
-			if plr.Character then
-				ScanContainer(
-					plr.Character,
-					plr.Name
-				)
-			end
-
-			if plr:FindFirstChild(
-				"Backpack"
-			) then
-
-				ScanContainer(
-					plr.Backpack,
-					plr.Name
-				)
-			end
-		end
-	end
-
-	-- BETTER WORKSPACE SCAN
-
-	local plots =
-		workspace:FindFirstChild("Plots")
-
-	if plots then
-
-		for _,obj in pairs(
-			plots:GetDescendants()
-		) do
-
-			Detect(obj,"Workspace")
-		end
-	end
-end
-
--- SERVER HOP
-
-function HopServer()
-
-	if not AutoHop then
-		return
-	end
-
-	status.Text =
-		"🔄 Searching server..."
-
-	local success,servers =
-		pcall(function()
-
-		local url =
-		"https://games.roblox.com/v1/games/"..
-		PlaceId..
-		"/servers/Public?sortOrder=Asc&limit=100"
-
-		if ServerCursor then
-			url = url..
-			"&cursor="..
-			ServerCursor
-		end
-
-		return HttpService:JSONDecode(
-			game:HttpGet(url)
+		local req = game:HttpGet(
+			"https://games.roblox.com/v1/games/" ..
+			PlaceID ..
+			"/servers/Public?sortOrder=Asc&limit=100"
 		)
-	end)
 
-	if not success
-	or not servers
-	or not servers.data then
+		local data = HttpService:JSONDecode(req)
 
-		status.Text =
-			"❌ Retry request..."
+		if not data or not data.data then
+			error("Failed to get servers")
+		end
 
-		ServerCursor = nil
+		local foundServer = false
 
-		task.wait(2)
+		for _,server in ipairs(data.data) do
 
-		return HopServer()
-	end
+			if server.id ~= JobID
+			and server.playing < server.maxPlayers
+			and not visitedServers[server.id] then
 
-	ServerCursor =
-		servers.nextPageCursor
+				foundServer = true
 
-	local foundServer = false
+				visitedServers[server.id] = true
 
-	for _,server in ipairs(
-		servers.data
-	) do
+				log.Text =
+					"🚀 Joining New Server...\n\nPlayers: " ..
+					server.playing ..
+					"/" ..
+					server.maxPlayers
 
-		local freeSlots =
-			server.maxPlayers -
-			server.playing
-
-		if server.id ~= game.JobId
-		and freeSlots > 0
-		and server.playing >= 2
-		and not table.find(
-			VisitedServers,
-			server.id
-		) then
-
-			foundServer = true
-
-			table.insert(
-				VisitedServers,
-				server.id
-			)
-
-			status.Text =
-			"🚀 Joining "..server.playing..
-			"/"..server.maxPlayers
-
-			local CurrentJobId =
-				game.JobId
-
-			task.spawn(function()
-
-				task.wait(15)
-
-				if game.JobId ==
-					CurrentJobId
-				then
-
-					status.Text =
-					"❌ Freeze retry..."
-
-					HopServer()
-				end
-			end)
-
-			local tp = pcall(function()
-
-				TeleportService:
-				TeleportToPlaceInstance(
-					PlaceId,
-					server.id,
-					LocalPlayer
-				)
-			end)
-
-			if not tp then
-
-				status.Text =
-				"❌ TP failed..."
+				status.Text = "🔄 Server Hop"
 
 				task.wait(1)
 
-				return HopServer()
+				TeleportService:TeleportToPlaceInstance(
+					PlaceID,
+					server.id,
+					LocalPlayer
+				)
+
+				task.wait(5)
 			end
-
-			break
 		end
+
+		if not foundServer then
+
+			log.Text = "❌ No New Servers Found"
+			status.Text = "⚠️ Retry..."
+
+			table.clear(visitedServers)
+
+			task.wait(2)
+		end
+	end)
+
+	if not success then
+
+		log.Text = tostring(err)
+		status.Text = "❌ Hop Failed"
+
 	end
 
-	if not foundServer then
-
-		status.Text =
-			"♻ Refreshing..."
-
-		ServerCursor = nil
-
-		task.wait(1)
-
-		return HopServer()
-	end
+	hopping = false
 end
 
--- RETRY TP
-
-GuiService.ErrorMessageChanged:Connect(function()
-
-	task.wait(1)
-
-	HopServer()
-
-end)
-
--- AUTO REJOIN
-
-LocalPlayer.OnTeleport:Connect(function(State)
-
-	if State ==
-		Enum.TeleportState.Failed
-	then
-
-		task.wait(2)
-
-		HopServer()
-	end
-end)
-
--- PREMIUM GLOW
+--// SECRET DETECTION LOOP
 
 task.spawn(function()
 
-	while task.wait() do
+	while task.wait(3) do
 
-		TweenService:Create(
-			stroke,
-			TweenInfo.new(1),
-			{
-				Transparency = 0.6
-			}
-		):Play()
+		if stopped then
+			continue
+		end
 
-		task.wait(1)
+		local found = {}
 
-		TweenService:Create(
-			stroke,
-			TweenInfo.new(1),
-			{
-				Transparency = 0
-			}
-		):Play()
+		pcall(function()
+
+			for _,v in pairs(workspace:GetDescendants()) do
+
+				if v:IsA("Model") then
+
+					local name = string.lower(v.Name)
+
+					-- SECRET ONLY
+					if string.find(name,"secret") then
+						table.insert(found,v.Name)
+					end
+				end
+			end
+		end)
+
+		if #found > 0 then
+
+			log.Text =
+				"🔥 SECRET FOUND:\n\n" ..
+				table.concat(found,"\n")
+
+			status.Text = "✅ SECRET FOUND"
+
+			stopped = true
+
+		else
+
+			log.Text =
+				"❌ No Secret Found\n\nSearching New Server..."
+
+			status.Text = "🔍 Searching Secret"
+
+			ServerHop()
+		end
 	end
 end)
 
--- MULTI SCAN
-
-for i = 1,5 do
-
-	status.Text =
-		"🔍 Scanning "..i.."/5"
-
-	ScanServer()
-
-	if foundRare then
-		break
-	end
-
-	task.wait(4)
-end
-
--- AUTO HOP
-
-if not foundRare then
-
-	status.Text =
-		"❌ No secrets found"
-
-	task.wait(5)
-
-	HopServer()
-
-else
-
-	status.Text =
-		"✅ SECRET SERVER"
-end
+print("SECRET FINDER FINAL LOADED")
