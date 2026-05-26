@@ -2,6 +2,7 @@
 --// UNIVERSAL SECRET DETECTOR
 --// AUTO SERVER HOP
 --// NO REPEATED SERVERS
+--// AUTO EXECUTE AFTER TELEPORT
 --// AUTOJOIN + NEXT SERVER
 --// DRAG + STOP + MINIMIZE + EXIT
 
@@ -9,6 +10,21 @@ if getgenv().SecretFinderLoaded then
 	return
 end
 getgenv().SecretFinderLoaded = true
+
+--// AUTO EXECUTE AFTER TELEPORT
+
+if queue_on_teleport then
+
+	queue_on_teleport([[
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/jesusvc194-jpg/Hades/refs/heads/main/script.lua"))()
+	]])
+
+elseif syn and syn.queue_on_teleport then
+
+	syn.queue_on_teleport([[
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/jesusvc194-jpg/Hades/refs/heads/main/script.lua"))()
+	]])
+end
 
 repeat task.wait() until game:IsLoaded()
 
@@ -58,7 +74,7 @@ title.TextColor3 = Color3.fromRGB(255,170,0)
 title.Font = Enum.Font.GothamBold
 title.TextScaled = true
 
---// NEXT SERVER BUTTON
+--// NEXT BUTTON
 
 local nextBtn = Instance.new("TextButton")
 nextBtn.Parent = top
@@ -193,7 +209,7 @@ exitBtn.MouseButton1Click:Connect(function()
 
 end)
 
---// STOP SYSTEM
+--// STOP
 
 local stopped = false
 
