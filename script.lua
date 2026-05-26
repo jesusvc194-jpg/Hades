@@ -1,7 +1,8 @@
 --// SECRET FINDER FINAL
---// SECRET ONLY
+--// UNIVERSAL SECRET DETECTOR
 --// AUTO SERVER HOP
 --// NO REPEATED SERVERS
+--// AUTOJOIN + NEXT SERVER
 --// DRAG + STOP + MINIMIZE + EXIT
 
 if getgenv().SecretFinderLoaded then
@@ -32,8 +33,8 @@ gui.Parent = game.CoreGui
 
 local main = Instance.new("Frame")
 main.Parent = gui
-main.Size = UDim2.new(0,320,0,260)
-main.Position = UDim2.new(0.67,0,0.02,0)
+main.Size = UDim2.new(0,380,0,270)
+main.Position = UDim2.new(0.65,0,0.02,0)
 main.BackgroundColor3 = Color3.fromRGB(0,0,0)
 main.BorderSizePixel = 0
 main.Active = true
@@ -50,19 +51,49 @@ top.BackgroundTransparency = 1
 
 local title = Instance.new("TextLabel")
 title.Parent = top
-title.Size = UDim2.new(0.45,0,1,0)
+title.Size = UDim2.new(0,140,1,0)
 title.BackgroundTransparency = 1
 title.Text = "🔥 SECRET FINDER"
 title.TextColor3 = Color3.fromRGB(255,170,0)
 title.Font = Enum.Font.GothamBold
 title.TextScaled = true
 
+--// NEXT SERVER BUTTON
+
+local nextBtn = Instance.new("TextButton")
+nextBtn.Parent = top
+nextBtn.Size = UDim2.new(0,55,0,28)
+nextBtn.Position = UDim2.new(0,145,0.1,0)
+nextBtn.Text = "NEXT"
+nextBtn.BackgroundColor3 = Color3.fromRGB(0,170,255)
+nextBtn.TextColor3 = Color3.new(1,1,1)
+nextBtn.Font = Enum.Font.GothamBold
+nextBtn.TextScaled = true
+
+Instance.new("UICorner",nextBtn).CornerRadius = UDim.new(0,8)
+
+--// AUTOJOIN BUTTON
+
+local autoJoin = true
+
+local autoBtn = Instance.new("TextButton")
+autoBtn.Parent = top
+autoBtn.Size = UDim2.new(0,80,0,28)
+autoBtn.Position = UDim2.new(0,205,0.1,0)
+autoBtn.Text = "AUTOJOIN"
+autoBtn.BackgroundColor3 = Color3.fromRGB(0,255,120)
+autoBtn.TextColor3 = Color3.new(0,0,0)
+autoBtn.Font = Enum.Font.GothamBold
+autoBtn.TextScaled = true
+
+Instance.new("UICorner",autoBtn).CornerRadius = UDim.new(0,8)
+
 --// STOP BUTTON
 
 local stopBtn = Instance.new("TextButton")
 stopBtn.Parent = top
-stopBtn.Size = UDim2.new(0,60,0,30)
-stopBtn.Position = UDim2.new(0.52,0,0.1,0)
+stopBtn.Size = UDim2.new(0,50,0,28)
+stopBtn.Position = UDim2.new(0,290,0.1,0)
 stopBtn.Text = "STOP"
 stopBtn.BackgroundColor3 = Color3.fromRGB(255,170,0)
 stopBtn.TextColor3 = Color3.new(0,0,0)
@@ -71,12 +102,12 @@ stopBtn.TextScaled = true
 
 Instance.new("UICorner",stopBtn).CornerRadius = UDim.new(0,8)
 
---// MINIMIZE BUTTON
+--// MIN BUTTON
 
 local minBtn = Instance.new("TextButton")
 minBtn.Parent = top
-minBtn.Size = UDim2.new(0,30,0,30)
-minBtn.Position = UDim2.new(0.83,0,0.1,0)
+minBtn.Size = UDim2.new(0,25,0,28)
+minBtn.Position = UDim2.new(1,-55,0.1,0)
 minBtn.Text = "-"
 minBtn.BackgroundColor3 = Color3.fromRGB(180,180,180)
 minBtn.TextColor3 = Color3.new(0,0,0)
@@ -89,8 +120,8 @@ Instance.new("UICorner",minBtn).CornerRadius = UDim.new(0,8)
 
 local exitBtn = Instance.new("TextButton")
 exitBtn.Parent = top
-exitBtn.Size = UDim2.new(0,45,0,30)
-exitBtn.Position = UDim2.new(1,-50,0.1,0)
+exitBtn.Size = UDim2.new(0,25,0,28)
+exitBtn.Position = UDim2.new(1,-28,0.1,0)
 exitBtn.Text = "X"
 exitBtn.BackgroundColor3 = Color3.fromRGB(255,80,80)
 exitBtn.TextColor3 = Color3.new(1,1,1)
@@ -129,7 +160,7 @@ log.TextWrapped = true
 log.TextXAlignment = Enum.TextXAlignment.Left
 log.TextYAlignment = Enum.TextYAlignment.Top
 
---// MINIMIZE SYSTEM
+--// MINIMIZE
 
 local minimized = false
 local originalSize = main.Size
@@ -141,7 +172,7 @@ minBtn.MouseButton1Click:Connect(function()
 	if minimized then
 
 		content.Visible = false
-		main.Size = UDim2.new(0,320,0,40)
+		main.Size = UDim2.new(0,380,0,40)
 		minBtn.Text = "+"
 
 	else
@@ -183,6 +214,25 @@ stopBtn.MouseButton1Click:Connect(function()
 	end
 end)
 
+--// AUTOJOIN TOGGLE
+
+autoBtn.MouseButton1Click:Connect(function()
+
+	autoJoin = not autoJoin
+
+	if autoJoin then
+
+		autoBtn.Text = "AUTOJOIN"
+		autoBtn.BackgroundColor3 = Color3.fromRGB(0,255,120)
+
+	else
+
+		autoBtn.Text = "MANUAL"
+		autoBtn.BackgroundColor3 = Color3.fromRGB(255,120,120)
+
+	end
+end)
+
 --// SERVER HOP
 
 local hopping = false
@@ -218,7 +268,6 @@ local function ServerHop()
 			and not visitedServers[server.id] then
 
 				foundServer = true
-
 				visitedServers[server.id] = true
 
 				log.Text =
@@ -229,22 +278,25 @@ local function ServerHop()
 
 				status.Text = "🔄 Server Hop"
 
-				task.wait(1)
+				task.spawn(function()
 
-				TeleportService:TeleportToPlaceInstance(
-					PlaceID,
-					server.id,
-					LocalPlayer
-				)
+					task.wait(1)
 
-				task.wait(5)
+					TeleportService:TeleportToPlaceInstance(
+						PlaceID,
+						server.id,
+						LocalPlayer
+					)
+				end)
+
+				return
 			end
 		end
 
 		if not foundServer then
 
-			log.Text = "❌ No New Servers Found"
-			status.Text = "⚠️ Retry..."
+			log.Text = "⚠️ Resetting Server List..."
+			status.Text = "🔄 Retry..."
 
 			table.clear(visitedServers)
 
@@ -262,11 +314,23 @@ local function ServerHop()
 	hopping = false
 end
 
---// SECRET DETECTION LOOP
+--// NEXT SERVER BUTTON
+
+nextBtn.MouseButton1Click:Connect(function()
+
+	status.Text = "🔄 Manual Hop"
+
+	ServerHop()
+
+end)
+
+--// SECRET DETECTOR LOOP
 
 task.spawn(function()
 
-	while task.wait(3) do
+	while true do
+
+		task.wait(3)
 
 		if stopped then
 			continue
@@ -278,13 +342,22 @@ task.spawn(function()
 
 			for _,v in pairs(workspace:GetDescendants()) do
 
-				if v:IsA("Model") then
+				if v:IsA("TextLabel") then
 
-					local name = string.lower(v.Name)
+					local text = string.lower(v.Text)
 
-					-- SECRET ONLY
-					if string.find(name,"secret") then
-						table.insert(found,v.Name)
+					if text == "secret" then
+
+						local model = v:FindFirstAncestorOfClass("Model")
+
+						if model then
+
+							local brainrotName = model.Name
+
+							if not table.find(found, brainrotName) then
+								table.insert(found, brainrotName)
+							end
+						end
 					end
 				end
 			end
@@ -296,16 +369,21 @@ task.spawn(function()
 				"🔥 SECRET FOUND:\n\n" ..
 				table.concat(found,"\n")
 
-			status.Text = "✅ SECRET FOUND"
+			status.Text =
+				"✅ FOUND " .. #found .. " SECRET"
 
-			stopped = true
+			if autoJoin then
+				stopped = true
+			else
+				ServerHop()
+			end
 
 		else
 
 			log.Text =
 				"❌ No Secret Found\n\nSearching New Server..."
 
-			status.Text = "🔍 Searching Secret"
+			status.Text = "🔍 Searching"
 
 			ServerHop()
 		end
