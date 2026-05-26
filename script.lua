@@ -1,20 +1,26 @@
 --// DENYS ULTIMATE SECRET FINDER
---// FULL FIXED VERSION
+--// PREMIUM FULL VERSION
 --// AUTO HOP + ANTI FREEZE + ANTI REPEAT
+--// BETTER DETECTOR + PREMIUM UI
 
 if getgenv().BrainrotLoaded then
 	return
 end
+
 getgenv().BrainrotLoaded = true
 
 repeat task.wait()
 until game:IsLoaded()
+
+-- SERVICES
 
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 local GuiService = game:GetService("GuiService")
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
 
 local LocalPlayer = Players.LocalPlayer
 local PlaceId = game.PlaceId
@@ -25,19 +31,15 @@ and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 
 task.wait(8)
 
---========================
 -- AUTO EXECUTE
---========================
 
 if queue_on_teleport then
 	queue_on_teleport([[
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/jesusvc194-jpg/script.lua/main/Denys"))()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/jesusvc194-jpg/Hades/main/script.lua"))()
 	]])
 end
 
---========================
 -- SETTINGS
---========================
 
 local AutoHop = true
 local ServerCursor = nil
@@ -48,9 +50,7 @@ getgenv().VisitedServers =
 local VisitedServers =
 	getgenv().VisitedServers
 
---========================
 -- SECRET LIST
---========================
 
 local SecretKeywords = {
 
@@ -117,69 +117,56 @@ local SecretKeywords = {
 
 }
 
---========================
 -- GUI
---========================
 
 local gui = Instance.new("ScreenGui")
-gui.Parent = LocalPlayer.PlayerGui
+gui.Name = "DenysFinder"
+gui.Parent = CoreGui
 gui.ResetOnSpawn = false
 
 local main = Instance.new("Frame")
 main.Parent = gui
-main.Size = UDim2.new(0,320,0,270)
+main.Size = UDim2.new(0,340,0,300)
 main.Position = UDim2.new(0.02,0,0.2,0)
-main.BackgroundColor3 = Color3.fromRGB(15,15,15)
+main.BackgroundColor3 = Color3.fromRGB(12,12,12)
+main.BorderSizePixel = 0
+main.Active = true
+main.Draggable = true
 
-Instance.new("UICorner",main)
+Instance.new("UICorner",main).CornerRadius =
+	UDim.new(0,16)
+
+local stroke = Instance.new("UIStroke")
+stroke.Parent = main
+stroke.Color = Color3.fromRGB(255,140,0)
+stroke.Thickness = 2
+
+local gradient = Instance.new("UIGradient")
+gradient.Parent = main
+gradient.Color = ColorSequence.new{
+	ColorSequenceKeypoint.new(
+		0,
+		Color3.fromRGB(20,20,20)
+	),
+
+	ColorSequenceKeypoint.new(
+		1,
+		Color3.fromRGB(40,15,0)
+	)
+}
+
+-- TITLE
 
 local title = Instance.new("TextLabel")
 title.Parent = main
 title.Size = UDim2.new(1,0,0,35)
 title.BackgroundTransparency = 1
-title.Text = "🔥 DENYS FINDER"
+title.Text = "🔥 DENYS PREMIUM"
 title.TextScaled = true
 title.Font = Enum.Font.GothamBold
 title.TextColor3 = Color3.fromRGB(255,170,0)
 
-local stopBtn = Instance.new("TextButton")
-stopBtn.Parent = main
-stopBtn.Size = UDim2.new(0,50,0,25)
-stopBtn.Position = UDim2.new(0.34,0,0.03,0)
-stopBtn.Text = "STOP"
-stopBtn.TextScaled = true
-stopBtn.BackgroundColor3 = Color3.fromRGB(255,170,0)
-
-Instance.new("UICorner",stopBtn)
-
-local hopBtn = Instance.new("TextButton")
-hopBtn.Parent = main
-hopBtn.Size = UDim2.new(0,50,0,25)
-hopBtn.Position = UDim2.new(0.52,0,0.03,0)
-hopBtn.Text = "HOP"
-hopBtn.TextScaled = true
-hopBtn.BackgroundColor3 = Color3.fromRGB(0,170,255)
-
-Instance.new("UICorner",hopBtn)
-
-local minimizeBtn = Instance.new("TextButton")
-minimizeBtn.Parent = main
-minimizeBtn.Size = UDim2.new(0,30,0,25)
-minimizeBtn.Position = UDim2.new(0.71,0,0.03,0)
-minimizeBtn.Text = "-"
-minimizeBtn.TextScaled = true
-
-Instance.new("UICorner",minimizeBtn)
-
-local exitBtn = Instance.new("TextButton")
-exitBtn.Parent = main
-exitBtn.Size = UDim2.new(0,55,0,25)
-exitBtn.Position = UDim2.new(0.82,0,0.03,0)
-exitBtn.Text = "EXIT"
-exitBtn.TextScaled = true
-exitBtn.BackgroundColor3 = Color3.fromRGB(255,70,70)
-
-Instance.new("UICorner",exitBtn)
+-- STATUS
 
 local status = Instance.new("TextLabel")
 status.Parent = main
@@ -191,19 +178,82 @@ status.TextScaled = true
 status.Font = Enum.Font.Gotham
 status.TextColor3 = Color3.new(1,1,1)
 
+-- BUTTONS
+
+local stopBtn = Instance.new("TextButton")
+stopBtn.Parent = main
+stopBtn.Size = UDim2.new(0,55,0,25)
+stopBtn.Position = UDim2.new(0.34,0,0.03,0)
+stopBtn.Text = "STOP"
+stopBtn.TextScaled = true
+stopBtn.BackgroundColor3 =
+	Color3.fromRGB(255,170,0)
+
+Instance.new("UICorner",stopBtn)
+
+local hopBtn = Instance.new("TextButton")
+hopBtn.Parent = main
+hopBtn.Size = UDim2.new(0,55,0,25)
+hopBtn.Position = UDim2.new(0.53,0,0.03,0)
+hopBtn.Text = "HOP"
+hopBtn.TextScaled = true
+hopBtn.BackgroundColor3 =
+	Color3.fromRGB(0,170,255)
+
+Instance.new("UICorner",hopBtn)
+
+local minimizeBtn =
+	Instance.new("TextButton")
+
+minimizeBtn.Parent = main
+minimizeBtn.Size = UDim2.new(0,30,0,25)
+minimizeBtn.Position =
+	UDim2.new(0.72,0,0.03,0)
+
+minimizeBtn.Text = "-"
+minimizeBtn.TextScaled = true
+
+Instance.new("UICorner",minimizeBtn)
+
+local exitBtn = Instance.new("TextButton")
+exitBtn.Parent = main
+exitBtn.Size = UDim2.new(0,55,0,25)
+exitBtn.Position = UDim2.new(0.82,0,0.03,0)
+exitBtn.Text = "EXIT"
+exitBtn.TextScaled = true
+exitBtn.BackgroundColor3 =
+	Color3.fromRGB(255,70,70)
+
+Instance.new("UICorner",exitBtn)
+
+-- SCROLLING
+
 local scrolling = Instance.new("ScrollingFrame")
 scrolling.Parent = main
 scrolling.Position = UDim2.new(0,8,0,65)
 scrolling.Size = UDim2.new(1,-16,1,-73)
 scrolling.BackgroundTransparency = 1
+scrolling.BorderSizePixel = 0
+scrolling.ScrollBarThickness = 3
 
 local layout = Instance.new("UIListLayout")
 layout.Parent = scrolling
 layout.Padding = UDim.new(0,5)
 
---========================
+layout:GetPropertyChangedSignal(
+	"AbsoluteContentSize"
+):Connect(function()
+
+	scrolling.CanvasSize =
+		UDim2.new(
+			0,
+			0,
+			0,
+			layout.AbsoluteContentSize.Y + 10
+		)
+end)
+
 -- BUTTONS
---========================
 
 stopBtn.MouseButton1Click:Connect(function()
 
@@ -221,7 +271,7 @@ hopBtn.MouseButton1Click:Connect(function()
 end)
 
 exitBtn.MouseButton1Click:Connect(function()
-	game:Shutdown()
+	gui:Destroy()
 end)
 
 minimizeBtn.MouseButton1Click:Connect(function()
@@ -233,73 +283,15 @@ minimizeBtn.MouseButton1Click:Connect(function()
 		not status.Visible
 end)
 
---========================
--- DRAG GUI
---========================
-
-local dragging = false
-local dragInput
-local dragStart
-local startPos
-
-local function update(input)
-
-	local delta =
-		input.Position - dragStart
-
-	main.Position = UDim2.new(
-		startPos.X.Scale,
-		startPos.X.Offset + delta.X,
-		startPos.Y.Scale,
-		startPos.Y.Offset + delta.Y
-	)
-end
-
-main.InputBegan:Connect(function(input)
-
-	if input.UserInputType ==
-		Enum.UserInputType.MouseButton1
-	then
-
-		dragging = true
-		dragStart = input.Position
-		startPos = main.Position
-
-		input.Changed:Connect(function()
-
-			if input.UserInputState ==
-				Enum.UserInputState.End
-			then
-				dragging = false
-			end
-		end)
-	end
-end)
-
-main.InputChanged:Connect(function(input)
-
-	if input.UserInputType ==
-		Enum.UserInputType.MouseMovement
-	then
-		dragInput = input
-	end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-
-	if input == dragInput and dragging then
-		update(input)
-	end
-end)
-
---========================
 -- SOUND
---========================
 
 local function PlaySound()
 
 	local sound = Instance.new("Sound")
-	sound.SoundId = "rbxassetid://9118828562"
+
+	sound.SoundId =
+		"rbxassetid://9118828562"
+
 	sound.Volume = 3
 	sound.Parent = workspace
 
@@ -308,18 +300,34 @@ local function PlaySound()
 	game.Debris:AddItem(sound,5)
 end
 
---========================
--- ADD CARD
---========================
+-- CARD SYSTEM
+
+local DetectedCards = {}
 
 local function AddCard(player,item)
+
+	local id = player.."_"..item
+
+	if DetectedCards[id] then
+		return
+	end
+
+	DetectedCards[id] = true
 
 	local holder = Instance.new("Frame")
 	holder.Parent = scrolling
 	holder.Size = UDim2.new(1,-5,0,55)
-	holder.BackgroundColor3 = Color3.fromRGB(30,30,30)
+	holder.BackgroundColor3 =
+		Color3.fromRGB(30,30,30)
 
 	Instance.new("UICorner",holder)
+
+	local stroke =
+		Instance.new("UIStroke")
+
+	stroke.Parent = holder
+	stroke.Color =
+		Color3.fromRGB(255,140,0)
 
 	local txt = Instance.new("TextLabel")
 	txt.Parent = holder
@@ -329,26 +337,43 @@ local function AddCard(player,item)
 	txt.TextColor3 = Color3.new(1,1,1)
 	txt.TextScaled = true
 	txt.Font = Enum.Font.GothamBold
-	txt.TextXAlignment = Enum.TextXAlignment.Left
+	txt.TextXAlignment =
+		Enum.TextXAlignment.Left
 
 	txt.Text =
 	"👤 "..player..
 	"\n💎 "..item
 end
 
---========================
 -- DETECTOR
---========================
 
 local foundRare = false
+local Detected = {}
+
+local function Normalize(text)
+
+	return string.lower(
+		string.gsub(text,"[^%w]","")
+	)
+end
 
 local function IsRare(name)
 
-	for _,keyword in pairs(SecretKeywords) do
+	local normalizedName =
+		Normalize(name)
+
+	for _,keyword in pairs(
+		SecretKeywords
+	) do
+
+		local normalizedKeyword =
+			Normalize(keyword)
 
 		if string.find(
-			string.lower(name),
-			string.lower(keyword)
+			normalizedName,
+			normalizedKeyword,
+			1,
+			true
 		) then
 			return true
 		end
@@ -357,51 +382,89 @@ local function IsRare(name)
 	return false
 end
 
+local function Detect(obj, owner)
+
+	if not obj or not obj.Name then
+		return
+	end
+
+	if IsRare(obj.Name) then
+
+		local id =
+			owner.."_"..obj.Name
+
+		if Detected[id] then
+			return
+		end
+
+		Detected[id] = true
+
+		foundRare = true
+
+		AddCard(owner,obj.Name)
+
+		PlaySound()
+
+		status.Text =
+			"🔥 FOUND: "..obj.Name
+	end
+end
+
+local function ScanContainer(container, owner)
+
+	pcall(function()
+
+		for _,obj in pairs(
+			container:GetDescendants()
+		) do
+
+			Detect(obj, owner)
+		end
+	end)
+end
+
 local function ScanServer()
 
 	foundRare = false
 
-	for _,plr in pairs(Players:GetPlayers()) do
+	-- PLAYERS
+
+	for _,plr in pairs(
+		Players:GetPlayers()
+	) do
 
 		if plr ~= LocalPlayer then
 
-			local function check(container)
-
-				for _,obj in pairs(container:GetDescendants()) do
-
-					if IsRare(obj.Name) then
-
-						foundRare = true
-
-						AddCard(plr.Name,obj.Name)
-
-						PlaySound()
-
-						status.Text =
-							"🔥 SECRET FOUND"
-
-					end
-				end
+			if plr.Character then
+				ScanContainer(
+					plr.Character,
+					plr.Name
+				)
 			end
 
-			pcall(function()
+			if plr:FindFirstChild(
+				"Backpack"
+			) then
 
-				if plr.Character then
-					check(plr.Character)
-				end
-
-				if plr:FindFirstChild("Backpack") then
-					check(plr.Backpack)
-				end
-
-			end)
+				ScanContainer(
+					plr.Backpack,
+					plr.Name
+				)
+			end
 		end
+	end
+
+	-- WORKSPACE
+
+	for _,obj in pairs(
+		workspace:GetDescendants()
+	) do
+
+		Detect(obj,"Workspace")
 	end
 end
 
---========================
 -- SERVER HOP
---========================
 
 function HopServer()
 
@@ -409,17 +472,21 @@ function HopServer()
 		return
 	end
 
-	status.Text = "🔄 Searching new server..."
+	status.Text =
+		"🔄 Searching server..."
 
-	local success,servers = pcall(function()
+	local success,servers =
+		pcall(function()
 
 		local url =
-			"https://games.roblox.com/v1/games/"..
-			PlaceId..
-			"/servers/Public?sortOrder=Asc&limit=100"
+		"https://games.roblox.com/v1/games/"..
+		PlaceId..
+		"/servers/Public?sortOrder=Asc&limit=100"
 
 		if ServerCursor then
-			url = url.."&cursor="..ServerCursor
+			url = url..
+			"&cursor="..
+			ServerCursor
 		end
 
 		return HttpService:JSONDecode(
@@ -427,9 +494,12 @@ function HopServer()
 		)
 	end)
 
-	if not success or not servers or not servers.data then
+	if not success
+	or not servers
+	or not servers.data then
 
-		status.Text = "❌ Retry request..."
+		status.Text =
+			"❌ Retry request..."
 
 		ServerCursor = nil
 
@@ -438,14 +508,18 @@ function HopServer()
 		return HopServer()
 	end
 
-	ServerCursor = servers.nextPageCursor
+	ServerCursor =
+		servers.nextPageCursor
 
 	local foundServer = false
 
-	for _,server in ipairs(servers.data) do
+	for _,server in ipairs(
+		servers.data
+	) do
 
 		local freeSlots =
-			server.maxPlayers - server.playing
+			server.maxPlayers -
+			server.playing
 
 		if server.id ~= game.JobId
 		and freeSlots > 0
@@ -463,19 +537,22 @@ function HopServer()
 			)
 
 			status.Text =
-				"🚀 Joining "..server.playing..
-				"/"..server.maxPlayers
+			"🚀 Joining "..server.playing..
+			"/"..server.maxPlayers
 
-			local CurrentJobId = game.JobId
+			local CurrentJobId =
+				game.JobId
 
 			task.spawn(function()
 
 				task.wait(15)
 
-				if game.JobId == CurrentJobId then
+				if game.JobId ==
+					CurrentJobId
+				then
 
 					status.Text =
-						"❌ Server froze retrying..."
+					"❌ Freeze retry..."
 
 					HopServer()
 				end
@@ -489,13 +566,12 @@ function HopServer()
 					server.id,
 					LocalPlayer
 				)
-
 			end)
 
 			if not tp then
 
 				status.Text =
-					"❌ TP failed retry..."
+				"❌ TP failed..."
 
 				task.wait(1)
 
@@ -509,7 +585,7 @@ function HopServer()
 	if not foundServer then
 
 		status.Text =
-			"♻ Refreshing servers..."
+			"♻ Refreshing..."
 
 		ServerCursor = nil
 
@@ -519,9 +595,7 @@ function HopServer()
 	end
 end
 
---========================
 -- RETRY TP
---========================
 
 GuiService.ErrorMessageChanged:Connect(function()
 
@@ -531,9 +605,47 @@ GuiService.ErrorMessageChanged:Connect(function()
 
 end)
 
---========================
+-- AUTO REJOIN
+
+LocalPlayer.OnTeleport:Connect(function(State)
+
+	if State ==
+		Enum.TeleportState.Failed
+	then
+
+		task.wait(2)
+
+		HopServer()
+	end
+end)
+
+-- PREMIUM GLOW
+
+task.spawn(function()
+
+	while task.wait() do
+
+		TweenService:Create(
+			stroke,
+			TweenInfo.new(1),
+			{
+				Transparency = 0.6
+			}
+		):Play()
+
+		task.wait(1)
+
+		TweenService:Create(
+			stroke,
+			TweenInfo.new(1),
+			{
+				Transparency = 0
+			}
+		):Play()
+	end
+end)
+
 -- MULTI SCAN
---========================
 
 for i = 1,5 do
 
@@ -549,13 +661,12 @@ for i = 1,5 do
 	task.wait(4)
 end
 
---========================
 -- AUTO HOP
---========================
 
 if not foundRare then
 
-	status.Text = "❌ No secrets found"
+	status.Text =
+		"❌ No secrets found"
 
 	task.wait(5)
 
@@ -563,6 +674,6 @@ if not foundRare then
 
 else
 
-	status.Text = "✅ SECRET SERVER"
-
+	status.Text =
+		"✅ SECRET SERVER"
 end
