@@ -1,7 +1,7 @@
 --// DENYS ULTIMATE SECRET FINDER
---// PREMIUM FULL VERSION
+--// PREMIUM FINAL VERSION
 --// AUTO HOP + ANTI FREEZE + ANTI REPEAT
---// BETTER DETECTOR + PREMIUM UI
+--// BETTER DETECTOR + SMART FILTER + PREMIUM UI
 
 if getgenv().BrainrotLoaded then
 	return
@@ -99,13 +99,11 @@ local SecretKeywords = {
 "Los Noo My Hotspotsitos",
 "Los Nooo My Hotspotsitos",
 "Los Chicleteiras",
-"61",
 "Mariachi Corazoni",
 "Tacorita Bicicleta",
 "Las Sis",
 "Los Hotspotsitos",
 "Celularcini Viciosini",
-"Los 61",
 "La Extinct Grande",
 "Los Bros",
 "Esok Sekolah",
@@ -253,6 +251,49 @@ layout:GetPropertyChangedSignal(
 		)
 end)
 
+-- MINIMIZE SYSTEM
+
+local minimized = false
+local originalSize = main.Size
+
+minimizeBtn.MouseButton1Click:Connect(function()
+
+	minimized = not minimized
+
+	if minimized then
+
+		scrolling.Visible = false
+		status.Visible = false
+
+		main:TweenSize(
+			UDim2.new(0,340,0,40),
+			Enum.EasingDirection.Out,
+			Enum.EasingStyle.Quad,
+			0.25,
+			true
+		)
+
+		minimizeBtn.Text = "+"
+
+	else
+
+		main:TweenSize(
+			originalSize,
+			Enum.EasingDirection.Out,
+			Enum.EasingStyle.Quad,
+			0.25,
+			true
+		)
+
+		task.wait(0.1)
+
+		scrolling.Visible = true
+		status.Visible = true
+
+		minimizeBtn.Text = "-"
+	end
+end)
+
 -- BUTTONS
 
 stopBtn.MouseButton1Click:Connect(function()
@@ -272,15 +313,6 @@ end)
 
 exitBtn.MouseButton1Click:Connect(function()
 	gui:Destroy()
-end)
-
-minimizeBtn.MouseButton1Click:Connect(function()
-
-	scrolling.Visible =
-		not scrolling.Visible
-
-	status.Visible =
-		not status.Visible
 end)
 
 -- SOUND
@@ -388,6 +420,30 @@ local function Detect(obj, owner)
 		return
 	end
 
+	-- IGNORE JUNK
+
+	if obj:IsA("Motor6D")
+	or obj:IsA("Weld")
+	or obj:IsA("Script")
+	or obj:IsA("LocalScript")
+	or obj:IsA("ModuleScript")
+	or obj:IsA("Decal")
+	or obj:IsA("Texture")
+	or obj:IsA("Sound")
+	then
+		return
+	end
+
+	-- IGNORE RANDOM IDS
+
+	if string.len(obj.Name) > 40 then
+		return
+	end
+
+	if string.match(obj.Name,"%x%x%x%x%x%x%x%x") then
+		return
+	end
+
 	if IsRare(obj.Name) then
 
 		local id =
@@ -454,13 +510,19 @@ local function ScanServer()
 		end
 	end
 
-	-- WORKSPACE
+	-- BETTER WORKSPACE SCAN
 
-	for _,obj in pairs(
-		workspace:GetDescendants()
-	) do
+	local plots =
+		workspace:FindFirstChild("Plots")
 
-		Detect(obj,"Workspace")
+	if plots then
+
+		for _,obj in pairs(
+			plots:GetDescendants()
+		) do
+
+			Detect(obj,"Workspace")
+		end
 	end
 end
 
